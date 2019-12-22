@@ -141,13 +141,17 @@ class CategoryController extends Controller
             $category->delete();
 
             $image=Image::where('imageable_id',$category->id)->first();
-            $image->delete();
-
-            //delete image 
-            $image_path = storage_path('app/public/images/' . $image->file_name);
-            if(File::exists($image_path)) {
-                File::delete($image_path);
+            if($image){
+                $image->delete();
+                //delete image 
+                $image_path = storage_path('app/public/images/' . $image->file_name);
+                if(File::exists($image_path)) {
+                    File::delete($image_path);
+                }
             }
+           
+
+            
 
             return response()->json([
                 'status'=>$status_success,

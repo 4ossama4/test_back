@@ -57,6 +57,12 @@ class CourseController extends Controller
             $course->description = $request->description;
             $course->save();
 
+            if($request->image){
+                $filename = basename($request->image);
+                copy($request->image,storage_path('app/public/images/' . $filename));
+                $course->image()->create(['url'=>$request->image,'file_name'=>$filename]);
+            }
+
             return response()->json([
                 'status'=>$status_success,
                 'message'=>$message_success,
@@ -141,14 +147,19 @@ class CourseController extends Controller
             $course=Course::where('slug',$slug)->first();
             $course->delete();
 
-            $image=Image::where('imageable_id',$course->id)->first();
-            $image->delete();
 
-            //delete image 
-            $image_path = storage_path('app/public/images/' . $image->file_name);
-            if(File::exists($image_path)) {
-                File::delete($image_path);
+            $image=Image::where('imageable_id',$course->id)->first();
+            
+            if($image){
+                $image->delete();
+
+                //delete image 
+                $image_path = storage_path('app/public/images/' . $image->file_name);
+                if(File::exists($image_path)) {
+                    File::delete($image_path);
+                }
             }
+            
 
             return response()->json([
                 'status'=>$status_success,
